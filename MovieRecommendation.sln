@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{77647176-733C-4162-A794-3477EB4ED9F2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{E8396E97-F2C9-4684-A93B-95CAAC6CE446}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{78D33BF5-9E46-4AA8-9AAC-E2BE5ED8DF7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieRecommendation.Domain", "Core\MovieRecommendation.Domain\MovieRecommendation.Domain.csproj", "{F3BAD650-E59C-4EFB-8AEC-8E858A66D248}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieRecommendation.Persistence", "Infrastructure\MovieRecommendation.Persistence\MovieRecommendation.Persistence.csproj", "{5A851677-6747-4074-B4C5-053A0331CAAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieRecommendation.API", "Presentation\MovieRecommendation.API\MovieRecommendation.API.csproj", "{4D26252C-4A24-4751-B825-DED5587AB1BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3BAD650-E59C-4EFB-8AEC-8E858A66D248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3BAD650-E59C-4EFB-8AEC-8E858A66D248}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3BAD650-E59C-4EFB-8AEC-8E858A66D248}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3BAD650-E59C-4EFB-8AEC-8E858A66D248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A851677-6747-4074-B4C5-053A0331CAAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A851677-6747-4074-B4C5-053A0331CAAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A851677-6747-4074-B4C5-053A0331CAAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A851677-6747-4074-B4C5-053A0331CAAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D26252C-4A24-4751-B825-DED5587AB1BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D26252C-4A24-4751-B825-DED5587AB1BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D26252C-4A24-4751-B825-DED5587AB1BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D26252C-4A24-4751-B825-DED5587AB1BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F3BAD650-E59C-4EFB-8AEC-8E858A66D248} = {77647176-733C-4162-A794-3477EB4ED9F2}
+		{5A851677-6747-4074-B4C5-053A0331CAAB} = {E8396E97-F2C9-4684-A93B-95CAAC6CE446}
+		{4D26252C-4A24-4751-B825-DED5587AB1BF} = {78D33BF5-9E46-4AA8-9AAC-E2BE5ED8DF7B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {55048B76-5BA4-4211-B946-94A7DA9A40DD}
+	EndGlobalSection
+EndGlobal
