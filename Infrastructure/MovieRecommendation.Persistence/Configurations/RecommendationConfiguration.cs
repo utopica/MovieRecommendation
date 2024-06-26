@@ -33,7 +33,7 @@ namespace MovieRecommendation.Persistence.Configurations
             // COMMON FIELDS
 
             // CreatedByUserId
-            builder.Property(x => x.CreatedByUserId).IsRequired();
+            builder.Property(x => x.CreatedByUserId).IsRequired(false);
             builder.Property(x => x.CreatedByUserId).HasMaxLength(75);
 
             // CreatedOn

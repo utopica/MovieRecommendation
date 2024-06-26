@@ -8,6 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using MovieRecommendation.Persistence.Services;
+using MovieRecommendation.Domain.Interfaces;
+using MovieRecommendation.Persistence.Services;
+using Microsoft.Extensions.Hosting;
 
 namespace MovieRecommendation.Persistence
 {
@@ -21,23 +25,9 @@ namespace MovieRecommendation.Persistence
 
             services.AddDbContext<ApplicationDbContext>(options => { options.UseNpgsql(connectionString); });
 
-            //var domain = $"https://{configuration["Auth0:Domain"]}/";
-            //var audience = configuration["Auth0:Audience"];
+            services.AddScoped<IMovieService, MovieService>();
 
-            //services.AddAuthentication(options =>
-            //{
-            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //}).AddJwtBearer(options =>
-            //{
-            //    options.Authority = domain;
-            //    options.Audience = audience;
-            //});
-
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("User", policy => policy.RequireClaim("scope", "read:messages"));
-            //});
+            services.AddSingleton<IHostedService, BackgroundMovieUpdater>();
 
         }
     }

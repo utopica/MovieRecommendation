@@ -9,9 +9,9 @@ namespace MovieRecommendation.Domain.Entities
 {
     public class Recommendation : EntityBase<Guid>
     {
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
         public User User { get; set; }
-        public string MovieId { get; set; }
+        public Guid MovieId { get; set; }
         public Movie Movie { get; set; }
         public string RecipientEmail { get; set; }
         public DateTimeOffset SentAt { get; set; }
