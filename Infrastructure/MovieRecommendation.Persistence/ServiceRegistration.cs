@@ -21,23 +21,23 @@ namespace MovieRecommendation.Persistence
 
             services.AddDbContext<ApplicationDbContext>(options => { options.UseNpgsql(connectionString); });
 
-            var domain = $"https://{configuration["Auth0:Domain"]}/";
-            var audience = configuration["Auth0:Audience"];
+            //var domain = $"https://{configuration["Auth0:Domain"]}/";
+            //var audience = configuration["Auth0:Audience"];
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.Authority = domain;
-                options.Audience = audience;
-            });
+            //services.AddAuthentication(options =>
+            //{
+            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //}).AddJwtBearer(options =>
+            //{
+            //    options.Authority = domain;
+            //    options.Audience = audience;
+            //});
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("User", policy => policy.RequireClaim("scope", "read:messages"));
-            });
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("User", policy => policy.RequireClaim("scope", "read:messages"));
+            //});
 
         }
     }

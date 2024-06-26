@@ -6,41 +6,43 @@ using MovieRecommendation.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var domain = $"https://{builder.Configuration["Auth0:Domain"]}/";
+// Configuration settings
+var configuration = builder.Configuration;
+
+var domain = $"https://{configuration["Auth0:Domain"]}/";
+var audience = configuration["Auth0:Audience"];
+
+// Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.Authority = domain;
-        options.Audience = builder.Configuration["Auth0:Audience"];
+        options.Audience = audience;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             NameClaimType = ClaimTypes.NameIdentifier
         };
     });
 
+// Authorization
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("read:messages", policy => policy.Requirements.Add(new
-        HasScopeRequirement("read:messages", domain)));
+    options.AddPolicy("read:messages", policy =>
+        policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
-// Add services to the container.
-var configuration = builder.Configuration;
-
+// Add services to the container
 builder.Services.AddPersistenceServices(configuration);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -48,14 +50,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
-
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.MapControllers();
 
 app.Run();
