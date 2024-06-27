@@ -8,10 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using MovieRecommendation.Persistence.Services;
-using MovieRecommendation.Domain.Interfaces;
-using MovieRecommendation.Persistence.Services;
-using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using MovieRecommendation.Persistence.Contexts.Identity;
 
 namespace MovieRecommendation.Persistence
 {
@@ -25,10 +24,39 @@ namespace MovieRecommendation.Persistence
 
             services.AddDbContext<ApplicationDbContext>(options => { options.UseNpgsql(connectionString); });
 
-            services.AddScoped<IMovieService, MovieService>();
+            services.AddDbContext<IdentityContext>(options =>
+            {
+                options.UseNpgsql(connectionString);
+            });
+            //services.AddScoped<IMovieService, MovieService>();
 
-            services.AddSingleton<IHostedService, BackgroundMovieUpdater>();
+            //services.AddHttpClient<IMovieService, MovieService>();
 
+            //var domain = configuration["Auth0:Domain"];
+            //var audience = configuration["Auth0:Audience"];
+            //var clientSecret = configuration["Auth0:ClientSecret"];
+
+            //services.AddAuthentication(x =>
+            //{
+            //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            //}).AddJwtBearer(options =>
+            //{
+            //    options.Authority = domain;
+            //    options.Audience = audience;
+            //    options.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        ValidateIssuer = true,
+            //        ValidateAudience = true,
+            //        ValidateLifetime = true,
+            //        ValidateIssuerSigningKey = true,
+            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(clientSecret))
+            //    };
+            //});
+
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
         }
+
     }
 }

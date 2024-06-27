@@ -25,11 +25,20 @@ namespace MovieRecommendation.Persistence.Configurations
             builder.Property(m => m.Summary)
                 .HasMaxLength(1000);
 
-            builder.Property(m => m.Director)
-                .HasMaxLength(100);
+            //builder.Property(m => m.Director)
+            //    .HasMaxLength(100);
 
             builder.Property(m => m.ReleaseDate)
                 .IsRequired();
+
+            builder.Property(m => m.Language)
+                .IsRequired();
+
+            //builder.Property(m => m.Budget)
+            //    .IsRequired();
+
+            //builder.Property(m => m.Revenue)
+            //    .IsRequired();
 
             builder.HasMany(m => m.Ratings)
                 .WithOne(r => r.Movie)

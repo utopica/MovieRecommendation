@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MovieRecommendation.Domain.Common;
+using MovieRecommendation.Domain.Identity;
 
 namespace MovieRecommendation.Domain.Entities
 {

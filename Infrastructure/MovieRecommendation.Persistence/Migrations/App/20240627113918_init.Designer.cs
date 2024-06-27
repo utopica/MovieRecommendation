@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MovieRecommendation.Persistence.Migrations.App
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240626073710_init")]
+    [Migration("20240627113918_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -32,7 +32,6 @@ namespace MovieRecommendation.Persistence.Migrations.App
                         .HasColumnType("uuid");
 
                     b.Property<string>("CreatedByUserId")
-                        .IsRequired()
                         .HasMaxLength(75)
                         .HasColumnType("character varying(75)");
 
@@ -46,14 +45,13 @@ namespace MovieRecommendation.Persistence.Migrations.App
                     b.Property<DateTimeOffset?>("DeletedOn")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Director")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<bool?>("IsDeleted")
                         .IsRequired()
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedByUserId")
                         .HasMaxLength(75)
@@ -87,7 +85,6 @@ namespace MovieRecommendation.Persistence.Migrations.App
                         .HasColumnType("uuid");
 
                     b.Property<string>("CreatedByUserId")
-                        .IsRequired()
                         .HasMaxLength(75)
                         .HasColumnType("character varying(75)");
 
@@ -130,8 +127,6 @@ namespace MovieRecommendation.Persistence.Migrations.App
 
                     b.HasIndex("MovieId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Ratings", (string)null);
                 });
 
@@ -142,7 +137,6 @@ namespace MovieRecommendation.Persistence.Migrations.App
                         .HasColumnType("uuid");
 
                     b.Property<string>("CreatedByUserId")
-                        .IsRequired()
                         .HasMaxLength(75)
                         .HasColumnType("character varying(75)");
 
@@ -185,59 +179,7 @@ namespace MovieRecommendation.Persistence.Migrations.App
 
                     b.HasIndex("MovieId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Recommendations", (string)null);
-                });
-
-            modelBuilder.Entity("MovieRecommendation.Domain.Entities.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Auth0Id")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasMaxLength(75)
-                        .HasColumnType("character varying(75)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DeletedByUserId")
-                        .HasMaxLength(75)
-                        .HasColumnType("character varying(75)");
-
-                    b.Property<DateTimeOffset?>("DeletedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<bool?>("IsDeleted")
-                        .IsRequired()
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ModifiedByUserId")
-                        .HasMaxLength(75)
-                        .HasColumnType("character varying(75)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Auth0Id")
-                        .IsUnique();
-
-                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MovieRecommendation.Domain.Entities.Rating", b =>
@@ -248,15 +190,7 @@ namespace MovieRecommendation.Persistence.Migrations.App
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MovieRecommendation.Domain.Entities.User", "User")
-                        .WithMany("Ratings")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Movie");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MovieRecommendation.Domain.Entities.Recommendation", b =>
@@ -267,27 +201,12 @@ namespace MovieRecommendation.Persistence.Migrations.App
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MovieRecommendation.Domain.Entities.User", "User")
-                        .WithMany("Recommendations")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Movie");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MovieRecommendation.Domain.Entities.Movie", b =>
                 {
                     b.Navigation("Ratings");
-                });
-
-            modelBuilder.Entity("MovieRecommendation.Domain.Entities.User", b =>
-                {
-                    b.Navigation("Ratings");
-
-                    b.Navigation("Recommendations");
                 });
 #pragma warning restore 612, 618
         }

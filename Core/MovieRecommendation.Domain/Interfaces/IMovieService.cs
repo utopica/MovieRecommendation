@@ -13,6 +13,6 @@ namespace MovieRecommendation.Domain.Interfaces
         Task<Movie> GetMovieDetails(string id);
         Task AddRating(string userId, string movieId, int score, string note);
         Task RecommendMovie(string userId, string movieId, string recipientEmail);
-        Task UpdateMovies();
+        
     }
 }

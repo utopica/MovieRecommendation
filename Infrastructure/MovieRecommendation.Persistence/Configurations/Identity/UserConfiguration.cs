@@ -1,17 +1,18 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MovieRecommendation.Domain.Entities;
+using MovieRecommendation.Domain.Identity;
 
-namespace MovieRecommendation.Persistence.Configurations
+namespace MovieRecommendation.Persistence.Configurations.Identity
 {
     public class UserConfiguration : IEntityTypeConfiguration<User>
     {
+        //authentication//customize-identity-model
+
         public void Configure(EntityTypeBuilder<User> builder)
         {
             // Properties
@@ -19,16 +20,10 @@ namespace MovieRecommendation.Persistence.Configurations
 
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
-            builder.Property(u => u.Auth0Id)
-                .IsRequired()
-                .HasMaxLength(100);
-
             builder.Property(u => u.Email)
                 .IsRequired()
                 .HasMaxLength(100);
 
-            builder.HasIndex(u => u.Auth0Id)
-                .IsUnique();
 
             builder.HasMany(u => u.Ratings)
                 .WithOne(r => r.User)
@@ -66,6 +61,5 @@ namespace MovieRecommendation.Persistence.Configurations
 
             builder.ToTable("Users");
         }
-
     }
 }

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MovieRecommendation.Domain.Entities;
+using MovieRecommendation.Domain.Identity;
 
 namespace MovieRecommendation.Persistence.Contexts
 {
@@ -16,7 +17,6 @@ namespace MovieRecommendation.Persistence.Contexts
         {
         }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Recommendation> Recommendations { get; set; }
@@ -24,6 +24,9 @@ namespace MovieRecommendation.Persistence.Contexts
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+            modelBuilder.Ignore<User>();
+            modelBuilder.Ignore<Role>();
 
             base.OnModelCreating(modelBuilder);
         }
