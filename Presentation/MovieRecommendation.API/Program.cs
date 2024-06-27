@@ -6,8 +6,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MovieRecommendation.API.Services;
 using MovieRecommendation.Domain.Identity;
+using MovieRecommendation.Domain.Interfaces;
 using MovieRecommendation.Persistence;
+using MovieRecommendation.Persistence.Contexts;
 using MovieRecommendation.Persistence.Contexts.Identity;
+using MovieRecommendation.Persistence.Services;
 using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 builder.Services.AddHttpClient<TmdbService>();
+builder.Services.AddScoped<TmdbService>();
 
 
 //builder.Services.AddIdentityCore<User>(options =>
@@ -48,9 +52,14 @@ builder.Services.AddSwaggerGen(options =>
 // Add services to the container
 builder.Services.AddPersistenceServices(configuration);
 
+builder.Services.AddScoped<IMovieService, MovieService>();
+
 //builder.Services.AddScoped<TokenService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+}); 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
