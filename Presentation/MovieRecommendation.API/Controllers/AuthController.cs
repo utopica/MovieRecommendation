@@ -9,88 +9,91 @@ using MovieRecommendation.API.Services;
 using MovieRecommendation.Domain.Identity;
 using MovieRecommendation.Persistence.Contexts.Identity;
 
-[Route("api/[controller]")]
-[ApiController]
-public class AuthController : ControllerBase
+namespace MovieRecommendation.API.Controllers
 {
-    private readonly UserManager<User> _userManager;
-    private readonly IdentityContext _context;
-    private readonly TokenService _tokenService;
-
-    public AuthController(UserManager<User> userManager, IdentityContext context, TokenService tokenService)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
     {
-        _userManager = userManager;
-        _context = context;
-        _tokenService = tokenService;
-    }
+        private readonly UserManager<User> _userManager;
+        private readonly IdentityContext _context;
+        private readonly TokenService _tokenService;
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegistrationRequest request)
-    {
-        if (!ModelState.IsValid)
+        public AuthController(UserManager<User> userManager, IdentityContext context, TokenService tokenService)
         {
-            return BadRequest(ModelState);
+            _userManager = userManager;
+            _context = context;
+            _tokenService = tokenService;
         }
 
-        Guid userId = Guid.NewGuid();
-        var result = await _userManager.CreateAsync(
-            new User
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegistrationRequest request)
+        {
+            if (!ModelState.IsValid)
             {
-                Id = userId,
-                UserName = request.Username,
-                Email = request.Email,
-                CreatedByUserId = "halaymaster",
-                IsDeleted = false,
-                CreatedOn = DateTimeOffset.UtcNow
-            },
-            request.Password
-        );
+                return BadRequest(ModelState);
+            }
 
-        if (result.Succeeded)
-        {
-            request.Password = "";
-            return CreatedAtAction(nameof(Register), new { email = request.Email }, request);
-        }
+            Guid userId = Guid.NewGuid();
+            var result = await _userManager.CreateAsync(
+                new User
+                {
+                    Id = userId,
+                    UserName = "request.Username",
+                    Email = request.Email,
+                    CreatedByUserId = "halaymaster",
+                    IsDeleted = false,
+                    CreatedOn = DateTimeOffset.UtcNow
+                },
+                request.Password
+            );
 
-        foreach (var error in result.Errors)
-        {
-            ModelState.AddModelError(error.Code, error.Description);
-        }
+            if (result.Succeeded)
+            {
+                request.Password = "";
+                return CreatedAtAction(nameof(Register), new { email = request.Email }, request);
+            }
 
-        return BadRequest(ModelState);
-    }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
 
-    [HttpPost("login")]
-    public async Task<ActionResult<AuthResponse>> Authenticate([FromBody] AuthRequest request)
-    {
-        if (!ModelState.IsValid)
-        {
             return BadRequest(ModelState);
         }
 
-        var managedUser = await _userManager.FindByEmailAsync(request.Email);
-        if (managedUser == null)
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResponse>> Authenticate([FromBody] AuthRequest request)
         {
-            return BadRequest("Bad credentials");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var managedUser = await _userManager.FindByEmailAsync(request.Email);
+            if (managedUser == null)
+            {
+                return BadRequest("Bad credentials");
+            }
+
+            var isPasswordValid = await _userManager.CheckPasswordAsync(managedUser, request.Password);
+            if (!isPasswordValid)
+            {
+                return BadRequest("Bad credentials");
+            }
+
+            var userInDb = _context.Users.FirstOrDefault(u => u.Email == request.Email);
+            if (userInDb is null)
+                return Unauthorized();
+
+            var accessToken = _tokenService.CreateToken(userInDb);
+            await _context.SaveChangesAsync();
+            return Ok(new AuthResponse
+            {
+                Username = "userInDb.UserName",
+                Email = userInDb.Email,
+                Token = accessToken,
+            });
         }
-
-        var isPasswordValid = await _userManager.CheckPasswordAsync(managedUser, request.Password);
-        if (!isPasswordValid)
-        {
-            return BadRequest("Bad credentials");
-        }
-
-        var userInDb = _context.Users.FirstOrDefault(u => u.Email == request.Email);
-        if (userInDb is null)
-            return Unauthorized();
-
-        var accessToken = _tokenService.CreateToken(userInDb);
-        await _context.SaveChangesAsync();
-        return Ok(new AuthResponse
-        {
-            Username = userInDb.UserName,
-            Email = userInDb.Email,
-            Token = accessToken,
-        });
     }
 }

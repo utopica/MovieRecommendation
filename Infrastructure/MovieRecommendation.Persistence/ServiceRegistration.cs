@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using MovieRecommendation.Domain.Identity;
 using MovieRecommendation.Persistence.Contexts.Identity;
 
 namespace MovieRecommendation.Persistence
@@ -28,34 +30,9 @@ namespace MovieRecommendation.Persistence
             {
                 options.UseNpgsql(connectionString);
             });
-            //services.AddScoped<IMovieService, MovieService>();
 
-            //services.AddHttpClient<IMovieService, MovieService>();
 
-            //var domain = configuration["Auth0:Domain"];
-            //var audience = configuration["Auth0:Audience"];
-            //var clientSecret = configuration["Auth0:ClientSecret"];
 
-            //services.AddAuthentication(x =>
-            //{
-            //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            //}).AddJwtBearer(options =>
-            //{
-            //    options.Authority = domain;
-            //    options.Audience = audience;
-            //    options.TokenValidationParameters = new TokenValidationParameters
-            //    {
-            //        ValidateIssuer = true,
-            //        ValidateAudience = true,
-            //        ValidateLifetime = true,
-            //        ValidateIssuerSigningKey = true,
-            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(clientSecret))
-            //    };
-            //});
-
-            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
         }
 
     }
