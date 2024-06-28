@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -18,8 +19,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Configuration settings
 var configuration = builder.Configuration;
 
-builder.Services.AddHttpClient<TmdbService>();
-builder.Services.AddScoped<TmdbService>();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
+
 
 
 builder.Services.AddIdentityCore<User>(options =>
@@ -52,6 +54,7 @@ builder.Services.AddSwaggerGen(options =>
 // Add services to the container
 builder.Services.AddPersistenceServices(configuration);
 
+builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<TokenService>();
 

@@ -4,12 +4,14 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Timers;
+using MediatR;
 using Newtonsoft.Json;
 using MovieRecommendation.Domain.Entities;
 using Newtonsoft.Json.Linq;
 using MovieRecommendation.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using MovieRecommendation.Domain.DTOs;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace MovieRecommendation.Persistence.Services
 {
@@ -20,11 +22,17 @@ namespace MovieRecommendation.Persistence.Services
         private readonly string _apiKey;
         private readonly int _pageSize;
         private readonly System.Timers.Timer _updateTimer;
+        private readonly IMemoryCache _memoryCache;
+        private readonly MemoryCacheEntryOptions _cacheEntryOptions;
+        private readonly IMediator _mediator;
 
-        public TmdbService(HttpClient httpClient, IConfiguration configuration, ApplicationDbContext context)
+
+        public TmdbService(HttpClient httpClient, IConfiguration configuration, ApplicationDbContext context, IMediator mediator, IMemoryCache memoryCache)
         {
             _httpClient = httpClient;
             _context = context;
+            _mediator = mediator;
+            _memoryCache = memoryCache;
             _apiKey = configuration["Tmdb:ApiKey"];
             _httpClient.BaseAddress = new Uri("https://api.themoviedb.org/3/");
             _pageSize = configuration.GetValue<int>("Tmdb:PageSize");
@@ -35,6 +43,13 @@ namespace MovieRecommendation.Persistence.Services
             };
             _updateTimer.Elapsed += async (sender, e) => await UpdateMovieDataAsync();
             _updateTimer.Start();
+
+            _cacheEntryOptions = new MemoryCacheEntryOptions()
+            {
+                Priority = CacheItemPriority.High,
+                AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(30),
+
+            };
         }
 
         public async Task<string> GetPopularMoviesAsync()
@@ -61,45 +76,66 @@ namespace MovieRecommendation.Persistence.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"movie/popular?api_key={_apiKey}&language=en-US&page={pageNumber}&size={pageSize}");
-                response.EnsureSuccessStatusCode();
-
-                var content = await response.Content.ReadAsStringAsync();
-                var json = JObject.Parse(content);
-
-                var movies = new List<Movie>();
-
-                foreach (var item in json["results"])
+                var cacheKey = $"popularMovies_page_{pageNumber}_size_{pageSize}";
+                if (!_memoryCache.TryGetValue(cacheKey, out List<Movie> movies))
                 {
-                    var title = item["title"].ToString();
-                    var releaseDate = DateTimeOffset.Parse(item["release_date"].ToString()).UtcDateTime;
+                    movies = new List<Movie>();
 
-                    var existingMovie = await _context.Movies
-                        .FirstOrDefaultAsync(m => m.Title == title && m.ReleaseDate == releaseDate);
+                    int totalPages = (int)Math.Ceiling((double)pageSize / 20);
+                    int fetchedItems = 0;
 
-                    if (existingMovie != null)
+                    for (int i = 0; i < totalPages; i++)
                     {
-                        movies.Add(existingMovie);
-                    }
-                    else
-                    {
-                        var movie = new Movie
+                        int currentPage = pageNumber + i;
+                        var response = await _httpClient.GetAsync($"movie/popular?api_key={_apiKey}&language=en-US&page={currentPage}");
+                        response.EnsureSuccessStatusCode();
+
+                        var content = await response.Content.ReadAsStringAsync();
+                        var json = JObject.Parse(content);
+
+                        foreach (var item in json["results"])
                         {
-                            Id = Guid.NewGuid(),
-                            Title = title,
-                            Summary = item["overview"].ToString(),
-                            ReleaseDate = releaseDate,
-                            Language = item["original_language"].ToString(),
-                            Ratings = new List<Rating>(),
-                            CreatedOn = DateTimeOffset.UtcNow,
-                            IsDeleted = false
-                        };
+                            if (fetchedItems >= pageSize)
+                                break;
 
-                        _context.Movies.Add(movie);
-                        await _context.SaveChangesAsync();
+                            var title = item["title"].ToString();
+                            var releaseDate = DateTimeOffset.Parse(item["release_date"].ToString()).UtcDateTime;
 
-                        movies.Add(movie);
+                            var existingMovie = await _context.Movies
+                                .FirstOrDefaultAsync(m => m.Title == title && m.ReleaseDate == releaseDate);
+
+                            if (existingMovie != null)
+                            {
+                                movies.Add(existingMovie);
+                            }
+                            else
+                            {
+                                var movie = new Movie
+                                {
+                                    Id = Guid.NewGuid(),
+                                    Title = title,
+                                    Summary = item["overview"].ToString(),
+                                    ReleaseDate = releaseDate,
+                                    Language = item["original_language"].ToString(),
+                                    Ratings = new List<Rating>(),
+                                    CreatedOn = DateTimeOffset.UtcNow,
+                                    IsDeleted = false
+                                };
+
+                                _context.Movies.Add(movie);
+                                await _context.SaveChangesAsync();
+
+                                movies.Add(movie);
+                            }
+
+                            fetchedItems++;
+                        }
+
+                        if (fetchedItems >= pageSize)
+                            break;
                     }
+
+                    _memoryCache.Set(cacheKey, movies, _cacheEntryOptions);
                 }
 
                 return movies;
@@ -113,6 +149,7 @@ namespace MovieRecommendation.Persistence.Services
                 throw new ApplicationException("An error occurred while fetching movies.", ex);
             }
         }
+
 
 
         public async Task UpdateMovieDataAsync()

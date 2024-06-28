@@ -37,6 +37,9 @@ namespace MovieRecommendation.Persistence
 
             services.AddTransient<IMovieEmailSender, MovieEmailSender>();
 
+            services.AddHttpClient<TmdbService>();
+            services.AddScoped<TmdbService>();
+
         }
 
     }

@@ -69,7 +69,7 @@ namespace MovieRecommendation.Persistence.Services
                 var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == recommendation.MovieId);
 
                 var reciever = recommendation.RecipientEmail;
-                var fromEmail = user.Email.ToString();
+                var fromEmail = user.Email;
 
                 await _emailSender.SendEmail( fromEmail, reciever, movie.Title).WaitAsync(cancellationToken);
 
