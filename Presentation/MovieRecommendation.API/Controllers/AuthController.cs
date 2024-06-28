@@ -39,7 +39,7 @@ namespace MovieRecommendation.API.Controllers
                 new User
                 {
                     Id = userId,
-                    UserName = "request.Username",
+                    UserName = request.Username,
                     Email = request.Email,
                     CreatedByUserId = "halaymaster",
                     IsDeleted = false,

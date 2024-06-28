@@ -9,10 +9,8 @@ namespace MovieRecommendation.Domain.Interfaces
 {
     public interface IMovieService
     {
-        Task<IEnumerable<Movie>> GetMovies(int page, int pageSize);
-        Task<Movie> GetMovieDetails(Guid id);
-        Task AddRating(string userId, string movieId, int score, string note);
-        Task RecommendMovie(string userId, string movieId, string recipientEmail);
+        Task AddRating(string userId, string movieId, int score, string note, CancellationToken cancellationToken);
+        Task RecommendMovie(string userId, string movieId, string recipientEmail, CancellationToken cancellationToken);
         
     }
 }

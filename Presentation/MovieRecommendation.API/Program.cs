@@ -22,19 +22,19 @@ builder.Services.AddHttpClient<TmdbService>();
 builder.Services.AddScoped<TmdbService>();
 
 
-//builder.Services.AddIdentityCore<User>(options =>
-//    {
-//        options.SignIn.RequireConfirmedAccount = false;
-//        options.User.RequireUniqueEmail = true;
-//        options.Password.RequireDigit = false;
-//        options.Password.RequiredLength = 2;
-//        options.Password.RequireNonAlphanumeric = false;
-//        options.Password.RequireUppercase = false;
-//        options.Password.RequireLowercase = false;
-//    })
-//    .AddEntityFrameworkStores<IdentityContext>();
+builder.Services.AddIdentityCore<User>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.User.RequireUniqueEmail = true;
+        options.Password.RequireDigit = false;
+        options.Password.RequiredLength = 2;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
+    })
+    .AddEntityFrameworkStores<IdentityContext>();
 
-//builder.Services.AddSwaggerGen();
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
@@ -52,9 +52,9 @@ builder.Services.AddSwaggerGen(options =>
 // Add services to the container
 builder.Services.AddPersistenceServices(configuration);
 
-builder.Services.AddScoped<IMovieService, MovieService>();
 
-//builder.Services.AddScoped<TokenService>();
+
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

@@ -8,11 +8,13 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using MovieRecommendation.API.Models;
 using MovieRecommendation.Persistence.Services;
+using MovieRecommendation.Domain.DTOs;
 
 namespace MovieRecommendation.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class MoviesController : ControllerBase
     {
         private readonly TmdbService _tmdbService;
@@ -65,7 +67,8 @@ namespace MovieRecommendation.API.Controllers
         }
 
         [HttpPost("{movieId}/rate")]
-        public async Task<IActionResult> AddRating(Guid movieId, [FromBody] RatingModel ratingDto)
+        [Authorize]
+        public async Task<IActionResult> AddRating(Guid movieId, [FromBody] RatingModel ratingDto, CancellationToken cancellationToken)
         {
             try
             {
@@ -73,7 +76,7 @@ namespace MovieRecommendation.API.Controllers
                 if (userId == null)
                     return Unauthorized();
 
-                await _movieService.AddRating(userId, movieId.ToString(), ratingDto.Score, ratingDto.Note);
+                await _movieService.AddRating(userId, movieId.ToString(), ratingDto.Score, ratingDto.Note, cancellationToken);
                 return Ok();
             }
             catch (Exception ex)
@@ -82,14 +85,34 @@ namespace MovieRecommendation.API.Controllers
             }
         }
 
-        [HttpGet("{movieId}")]
+
+        [HttpPost("{movieId}/recommend")]
         [Authorize]
-        public async Task<IActionResult> GetMovieDetails(Guid movieId)
+        public async Task<IActionResult> RecommendMovie(Guid movieId, [FromBody] RecommendationModel recommendMovieDto, CancellationToken cancellationToken)
         {
             try
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var movieDetails = await _movieService.GetMovieDetails(movieId);
+                if (userId == null)
+                    return Unauthorized();
+
+                await _movieService.RecommendMovie(userId, movieId.ToString(), recommendMovieDto.RecipientEmail, cancellationToken);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{movieId}/GetMovieDetails")]
+        [Authorize]
+        public async Task<IActionResult> GetMovieDetails(Guid movieId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var movieDetails = await _tmdbService.GetMovieDetails(movieId, userId, cancellationToken);
                 return Ok(movieDetails);
             }
             catch (Exception ex)
@@ -98,24 +121,15 @@ namespace MovieRecommendation.API.Controllers
             }
         }
 
-        [HttpPost("{movieId}/recommend")]
+        [HttpPut("update")]
         [Authorize]
-        public async Task<IActionResult> RecommendMovie(Guid movieId, [FromBody] RecommendationModel recommendMovieDto)
+        public async Task<IActionResult> UpdateMovieData(CancellationToken cancellationToken)
         {
-            try
-            {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null)
-                    return Unauthorized();
-
-                await _movieService.RecommendMovie(userId, movieId.ToString(), recommendMovieDto.RecipientEmail);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
-            }
+            
+                await _tmdbService.UpdateMovieDataAsync();
+                return Ok("Movie data updated successfully.");
+            
+          
         }
-
     }
 }

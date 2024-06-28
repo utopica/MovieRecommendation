@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using MovieRecommendation.Domain.Identity;
 using MovieRecommendation.Domain.Interfaces;
 using MovieRecommendation.Persistence.Contexts.Identity;
+using MovieRecommendation.Persistence.Services;
 
 namespace MovieRecommendation.Persistence
 {
@@ -32,7 +33,7 @@ namespace MovieRecommendation.Persistence
                 options.UseNpgsql(connectionString);
             });
 
-            
+            services.AddScoped<IMovieService, MovieService>();
 
         }
 
