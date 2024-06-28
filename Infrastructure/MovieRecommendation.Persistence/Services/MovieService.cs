@@ -44,13 +44,13 @@ namespace MovieRecommendation.Persistence.Services
             }
         }
 
-        public async Task<Movie> GetMovieDetails(string id)
+        public async Task<Movie> GetMovieDetails(Guid id)
         {
             try
             {
                 var movie = await _context.Movies
                     .Include(m => m.Ratings)
-                    .FirstOrDefaultAsync(m => m.Id == Guid.Parse(id));
+                    .FirstOrDefaultAsync(m => m.Id == id);
 
                 if (movie == null)
                 {

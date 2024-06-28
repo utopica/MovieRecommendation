@@ -89,7 +89,7 @@ namespace MovieRecommendation.API.Controllers
             try
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var movieDetails = await _movieService.GetMovieDetails( movieId.ToString());
+                var movieDetails = await _movieService.GetMovieDetails(movieId);
                 return Ok(movieDetails);
             }
             catch (Exception ex)
