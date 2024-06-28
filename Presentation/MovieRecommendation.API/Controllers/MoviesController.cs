@@ -19,11 +19,13 @@ namespace MovieRecommendation.API.Controllers
     {
         private readonly TmdbService _tmdbService;
         private readonly IMovieService _movieService;
+        private readonly IMovieEmailSender _recommendationEmailSender;
 
-        public MoviesController(TmdbService tmdbService, IMovieService movieService)
+        public MoviesController(TmdbService tmdbService, IMovieService movieService, IMovieEmailSender recommendationEmailSender)
         {
             _tmdbService = tmdbService;
             _movieService = movieService;
+            _recommendationEmailSender = recommendationEmailSender;
         }
 
         [HttpGet("popular")]
@@ -97,6 +99,8 @@ namespace MovieRecommendation.API.Controllers
                     return Unauthorized();
 
                 await _movieService.RecommendMovie(userId, movieId.ToString(), recommendMovieDto.RecipientEmail, cancellationToken);
+
+
                 return Ok();
             }
             catch (Exception ex)
@@ -104,6 +108,8 @@ namespace MovieRecommendation.API.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
+        
 
         [HttpGet("{movieId}/GetMovieDetails")]
         [Authorize]

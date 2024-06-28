@@ -1,7 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.EntityFrameworkCore;
 using MovieRecommendation.Domain.Entities;
 using MovieRecommendation.Domain.Interfaces;
 using MovieRecommendation.Persistence.Contexts;
+using MovieRecommendation.Persistence.Contexts.Identity;
 using Newtonsoft.Json.Linq;
 
 namespace MovieRecommendation.Persistence.Services
@@ -9,10 +13,14 @@ namespace MovieRecommendation.Persistence.Services
     public class MovieService : IMovieService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IdentityContext _identityContext;
+        private readonly IMovieEmailSender _emailSender;
 
-        public MovieService(ApplicationDbContext context)
+        public MovieService(ApplicationDbContext context, IMovieEmailSender emailSender, IdentityContext identityContext)
         {
             _context = context;
+            _emailSender = emailSender;
+            _identityContext = identityContext;
         }
 
 
@@ -42,8 +50,10 @@ namespace MovieRecommendation.Persistence.Services
 
         public async Task RecommendMovie(string userId, string movieId, string recipientEmail, CancellationToken cancellationToken)
         {
+            
             try
             {
+
                 var recommendation = new Recommendation
                 {
                     Id = Guid.NewGuid(),
@@ -55,7 +65,17 @@ namespace MovieRecommendation.Persistence.Services
                     IsDeleted = false
                 };
 
+                var user = await _identityContext.Users.FirstOrDefaultAsync(u => u.Id == recommendation.UserId, cancellationToken);
+                var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == recommendation.MovieId);
+
+                var reciever = recommendation.RecipientEmail;
+                var fromEmail = user.Email.ToString();
+
+                await _emailSender.SendEmail( fromEmail, reciever, movie.Title).WaitAsync(cancellationToken);
+
+
                 _context.Recommendations.Add(recommendation);
+
                 await _context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
@@ -63,6 +83,8 @@ namespace MovieRecommendation.Persistence.Services
                 throw new ApplicationException("Error recommending movie.", ex);
             }
         }
+
+       
     }
 
 }

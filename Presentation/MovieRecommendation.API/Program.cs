@@ -53,7 +53,6 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddPersistenceServices(configuration);
 
 
-
 builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>

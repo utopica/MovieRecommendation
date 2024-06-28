@@ -35,6 +35,8 @@ namespace MovieRecommendation.Persistence
 
             services.AddScoped<IMovieService, MovieService>();
 
+            services.AddTransient<IMovieEmailSender, MovieEmailSender>();
+
         }
 
     }
